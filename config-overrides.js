@@ -38,6 +38,7 @@ module.exports = override(
   // 配置路径别名
   addWebpackAlias({
     "@": resolve("src"),
+    "@api": resolve("src/api"),
   }),
   addCustomize()
 );
