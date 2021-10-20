@@ -1,25 +1,33 @@
-import React, { useState } from "react";
-import { Card, Button, List, message } from "antd";
+import React, { useEffect, useState } from "react";
+import { Card, Button, List, message, Popconfirm } from "antd";
 import { withRouter } from "react-router-dom";
 import request from '@/utils/request'
-const data = [
-  {
-    title: 'Ant Design Title 1',
-  },
-  {
-    title: 'Ant Design Title 2',
-  },
-  {
-    title: 'Ant Design Title 3',
-  },
-  {
-    title: 'Ant Design Title 4',
-  },
-];
+import * as dayjs from 'dayjs';
+
+const Format = 'YYYY-MM-DD HH:mm:ss A';
+
+const formatDate = (number) => {
+  return dayjs(number).format(Format);
+}
 
 const Craft = (props) => {
   const { history } = props;
   const [newLoading, setNewLoading] = useState(false);
+  const [draft, setDraft] = useState([]);
+
+
+  useEffect(() => {
+    const fn = async () => {
+      const { code, data, msg } = await request.get('article/allDraft');
+      if (code === 0) {
+        setDraft(data)
+      } else {
+        message.info(msg);
+      }
+    }
+    fn();
+  }, [])
+
   const newArticle = async () => {
     setNewLoading(true);
     const { code, data, msg } = await request.post('article/new', {});
@@ -30,6 +38,23 @@ const Craft = (props) => {
       message.info(msg)
     }
   }
+
+  const delConfirm = async (articleId) => {
+    const { code, msg } = await request.post('article/del', { articleId });
+    if (code === 0) {
+      message.success(msg);
+      setDraft(draft.filter(i => i.articleId !== articleId));
+    } else {
+      message.info(msg);
+    }
+  }
+
+  const editDraft = (articleId) => {
+    setTimeout(() => {
+      history.push('/article/new/' + articleId);
+    }, 300);
+  }
+
   return (
     <div className="app-container">
       <Card>
@@ -39,14 +64,25 @@ const Craft = (props) => {
       <Card bordered={false} title='草稿箱'>
         <List
           itemLayout="horizontal"
-          dataSource={data}
+          dataSource={draft}
           renderItem={item => (
             <List.Item
-              actions={[<a key="list-loadmore-edit">编辑</a>, <a key="list-loadmore-more">删除</a>]}
+              actions={
+                [
+                  <Button type="link"  onClick={() => { editDraft(item.articleId) }}>编辑</Button>,
+                  <Popconfirm
+                    title="确定删除此草稿,不可恢复"
+                    onConfirm={() => { delConfirm(item.articleId) }}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button type="link" >删除</Button>
+                  </Popconfirm>
+                ]}
             >
               <List.Item.Meta
-                title={<a >{item.title}</a>}
-                description="2020-12-1"
+                title={<span onClick={()=>{editDraft(item.articleId)}} style={{ fontWeight: "bold", fontSize: "18px", cursor: 'pointer' }}>{item.title || '无标题'}</span>}
+                description={'上次编辑：' + formatDate(item.lastUpdateTime)}
               />
             </List.Item>
           )}
