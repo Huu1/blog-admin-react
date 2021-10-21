@@ -1,27 +1,52 @@
-import React, { useCallback, useEffect, useState ,useRef} from "react";
+import React, { useCallback, useEffect, useState, useRef, useReducer } from "react";
 import Markdown from "@/components/Markdown";
 import { Card, Input, message, Button } from "antd";
 import { withRouter } from "react-router-dom";
 import request from '@/utils/request'
 
+function reducer(state, action) {
+  const { type, payload } = action;
+  switch (type) {
+    case 'changeTitle':
+      return { ...state, title: payload };
+    case 'changeContent':
+      return { ...state, content: payload };
+    case 'changeArticle':
+      return { ...state, ...payload };
+    default:
+      throw new Error('类型不匹配');
+  }
+}
+
+const initArticle = {
+  title: '',
+  content: "",
+  articleId: ""
+}
 
 const Edit = (props) => {
   const { history, match: { params: { id } } } = props;
-  const [initContent, setInitContent] = useState();
-  const [content, setContent] = useState();
-  const [title, setTitle] = useState();
+
+  const didMountRef = useRef(false);
+
   const [info, setInfo] = useState('文章将自动保存到草稿箱');
 
-  
-  const didMountRef = useRef(false);
+  const [article, dispatch] = useReducer(reducer, initArticle)
+
 
   useEffect(() => {
     let timer;
     request.get(`article/${id}`).then(res => {
       const { code, data, msg } = res;
       if (code === 0) {
-        setInitContent(data.content);
-        setTitle(data.title)
+        dispatch({
+          type: "changeArticle",
+          payload: {
+            title: data.title,
+            content: data.content,
+            articleId: data.articleId,
+          }
+        })
       } else {
         message.error(msg);
         timer = setTimeout(() => {
@@ -34,15 +59,16 @@ const Edit = (props) => {
     }
   }, [history, id])
 
-  const save = useCallback((title, content) => {
+  const save = useCallback(() => {
     const fn = () => {
       setInfo('保存中...');
+      const { title, content, articleId } = article
       request.post(`article/edit`, {
         title,
         content,
-        articleId:id
+        articleId
       }).then(res => {
-        const { code, data, msg } = res;
+        const { code } = res;
         if (code === 0) {
           setTimeout(() => {
             setInfo('保存成功！');
@@ -53,44 +79,51 @@ const Edit = (props) => {
       })
     }
     fn();
-  }, [setInfo,id])
-
-  const valueChange = useCallback((value) => {
-    const fn = () => {
-      setContent(value)
-    }
-    fn()
-  }, [])
-
-  const titleChange = (e) => {
-    setTitle(e.target.value)
-  }
+  }, [setInfo, article])
 
   useEffect(() => {
     let timer;
     timer = setTimeout(() => {
       if (didMountRef.current) {
-        save(title, content);
-      }else {
+        save();
+      } else {
         didMountRef.current = true;
       }
     }, 1000);
     return () => {
       clearTimeout(timer)
     }
-  }, [title, content, save])
+  }, [article, save])
+
+  const valueChange = useCallback((value) => {
+    const fn = () => {
+      dispatch({
+        type: "changeContent",
+        payload: value
+      })
+    }
+    fn()
+  }, [])
+
+  const titleChange = (e) => {
+    dispatch({
+      type: "changeTitle",
+      payload: e.target.value
+    })
+  }
+
 
   return (
     <div className="app-container">
       <Card title="新建文章"  >
-        <div className='flex column-cetner between'>
-          <div>标题：</div>  <Input value={title}  onChange={titleChange} style={{ width: "30vw" }} />
+        <div className='flex column-center between'>
+          <div>标题：</div>  <Input value={article.title} onChange={titleChange} style={{ width: "30vw" }} />
           <div style={{ marginLeft: 'auto' }}>{info}</div>
           <Button type="primary" style={{ marginLeft: "30px" }}>发布</Button>
         </div>
       </Card>
       <br />
-      <Markdown value={initContent} valueChange={valueChange} />
+      <Markdown value={article.content} valueChange={valueChange} />
     </div>
   );
 };

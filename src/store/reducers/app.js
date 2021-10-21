@@ -2,6 +2,7 @@ import * as types from "../action-types";
 const initState = {
   sidebarCollapsed: false,
   settingPanelVisible: false,
+  appData: {}
 };
 export default function app(state = initState, action) {
   switch (action.type) {
@@ -14,6 +15,11 @@ export default function app(state = initState, action) {
       return {
         ...state,
         settingPanelVisible: !state.settingPanelVisible,
+      };
+    case types.APP_GLOBEL_DATA:
+      return {
+        ...state,
+        appData: action.payload,
       };
     default:
       return state;

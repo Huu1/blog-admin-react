@@ -31,9 +31,10 @@ const Markdown = (props) => {
   }, [valueChange])
 
   useEffect(() => {
-    if (vditor && value) {
+    if (vditor && value && !ref.current) {
       setTimeout(() => {
         vditor.setValue(value);
+        ref.current=true;
       }, 200);
     }
   }, [value, vditor])
