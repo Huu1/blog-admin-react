@@ -1,4 +1,5 @@
 import { setUserToken, setUserInfo } from "./user";
+import { setGlobleData} from "./app";
 import { reqLogin } from "@/api/login";
 import { setToken, removeToken } from "@/utils/auth";
 export const login = (username, password) => (dispatch) => {
@@ -10,6 +11,7 @@ export const login = (username, password) => (dispatch) => {
           setToken(data.token);
           dispatch(setUserInfo(data.user));
           dispatch(setUserToken(data.token));
+          dispatch(setGlobleData(data.appData));
           resolve(data);
         } else {
           reject(msg);

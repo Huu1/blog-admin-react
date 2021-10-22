@@ -1,5 +1,6 @@
 import * as types from "../action-types";
 import { reqUserInfo } from "@/api/user";
+import { setGlobleData } from "./app";
 
 export const getUserInfo = (token) => (dispatch) => {
   return new Promise((resolve, reject) => {
@@ -8,6 +9,7 @@ export const getUserInfo = (token) => (dispatch) => {
         const { code, msg, data } = response;
         if (code === 0) {
           dispatch(setUserInfo(data.user));
+          dispatch(setGlobleData(data.appData));
           resolve(data);
         } else {
           reject(msg);

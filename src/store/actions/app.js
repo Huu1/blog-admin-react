@@ -10,3 +10,9 @@ export const toggleSettingPanel = () => {
     type: types.APP_TOGGLE_SETTINGPANEL
   };
 };
+export const setGlobleData = (data) => {
+  return {
+    type: types.APP_GLOBEL_DATA,
+    payload: data
+  };
+};
