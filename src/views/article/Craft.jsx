@@ -4,6 +4,7 @@ import { withRouter } from "react-router-dom";
 import request from '@/utils/request'
 import Publish from '@/components/Publish'
 import * as dayjs from 'dayjs';
+import { delConfirm } from "../../api/article";
 
 const Format = 'YYYY-MM-DD HH:mm:ss A';
 
@@ -41,14 +42,10 @@ const Craft = (props) => {
     }
   }
 
-  const delConfirm = async (articleId) => {
-    const { code, msg } = await request.post('article/del', { articleId });
-    if (code === 0) {
-      message.success(msg);
+  const delConfirmHandle = (articleId) => {
+    delConfirm(articleId, () => {
       setDraft(draft.filter(i => i.articleId !== articleId));
-    } else {
-      message.info(msg);
-    }
+    })
   }
 
   const editDraft = (articleId) => {
@@ -82,7 +79,7 @@ const Craft = (props) => {
                   <Button type="link" onClick={() => { editDraft(item.articleId) }}>编辑</Button>,
                   <Popconfirm
                     title="确定删除此草稿,不可恢复"
-                    onConfirm={() => { delConfirm(item.articleId) }}
+                    onConfirm={() => { delConfirmHandle(item.articleId) }}
                     okText="Yes"
                     cancelText="No"
                   >
@@ -98,7 +95,7 @@ const Craft = (props) => {
           )}
         />
       </Card>
-      <Publish visible={pulishVisible} data={currentArticle} onClose={()=>{setPulishVisible(false)}} />
+      <Publish visible={pulishVisible} data={currentArticle} onClose={() => { setPulishVisible(false) }} />
     </div>
   );
 };

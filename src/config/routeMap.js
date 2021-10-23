@@ -9,6 +9,7 @@ const GuestPage = Loadable({loader: () => import(/*webpackChunkName:'GuestPage'*
 const EditorPage = Loadable({loader: () => import(/*webpackChunkName:'EditorPage'*/'@/views/permission/editorPage'),loading: Loading});
 const Craft = Loadable({loader: () => import(/*webpackChunkName:'Markdown'*/'@/views/article/Craft'),loading: Loading});
 const Edit = Loadable({loader: () => import(/*webpackChunkName:'Markdown'*/'@/views/article/Edit'),loading: Loading});
+const ArticleAll = Loadable({loader: () => import(/*webpackChunkName:'Markdown'*/'@/views/article/ArticleAll'),loading: Loading});
 // const Menu1_1 = Loadable({loader: () => import(/*webpackChunkName:'Menu1_1'*/'@/views/nested/menu1/menu1-1'),loading: Loading});
 // const Menu1_2_1 = Loadable({loader: () => import(/*webpackChunkName:'Menu1_2_1'*/'@/views/nested/menu1/menu1-2/menu1-2-1'),loading: Loading});
 const Error404 = Loadable({loader: () => import(/*webpackChunkName:'Error404'*/'@/views/error/404'),loading: Loading});
@@ -23,6 +24,7 @@ export default [
   { path: "/permission/guestPage", component: GuestPage, roles: ["user"] },
   { path: "/permission/editorPage", component: EditorPage, roles: ["user"] },
   { path: "/article/write", component: Craft, roles: ["admin","user"] },
+  { path: "/article/all", component: ArticleAll, roles: ["admin","user"] },
   { path: "/article/new/:id", component: Edit, roles: ["admin","user"] },
   { path: "/user", component: User, roles: ["admin"] },
   { path: "/about", component: About, roles: ["admin", "user", "guest"] },

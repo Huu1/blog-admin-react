@@ -7,13 +7,13 @@ const menuList = [
     title: "首页",
     path: "/dashboard",
     icon: "home",
-    roles:["admin","editor","guest"]
+    roles: ["admin", "editor", "guest"]
   },
   {
     title: "引导页",
     path: "/guide",
     icon: "key",
-    roles:["admin","editor"]
+    roles: ["admin", "editor"]
   },
   {
     title: "权限测试",
@@ -23,22 +23,22 @@ const menuList = [
       {
         title: "权限说明",
         path: "/permission/explanation",
-        roles:["admin"]
+        roles: ["admin"]
       },
       {
         title: "admin页面",
         path: "/permission/adminPage",
-        roles:["admin"]
+        roles: ["admin"]
       },
       {
         title: "guest页面",
         path: "/permission/guestPage",
-        roles:["guest"]
+        roles: ["guest"]
       },
       {
         title: "user页面",
         path: "/permission/editorPage",
-        roles:["user"]
+        roles: ["user"]
       },
     ],
   },
@@ -46,7 +46,7 @@ const menuList = [
     title: "文章",
     path: "/article",
     icon: "appstore",
-    roles:["admin","user"],
+    roles: ["admin", "user"],
     children: [
       // {
       //   title: "富文本",
@@ -56,7 +56,12 @@ const menuList = [
       {
         title: "草稿箱",
         path: "/article/write",
-        roles:["admin","user"],
+        roles: ["admin", "user"],
+      },
+      {
+        title: "我的文章",
+        path: "/article/all",
+        roles: ["admin", "user"],
       },
       // {
       //   title: "草稿箱",
@@ -104,19 +109,19 @@ const menuList = [
     title: "用户管理",
     path: "/user",
     icon: "usergroup-add",
-    roles:["admin"]
+    roles: ["admin"]
   },
   {
     title: "关于作者",
     path: "/about",
     icon: "user",
-    roles:["admin","user","guest"]
+    roles: ["admin", "user", "guest"]
   },
   {
     title: "Bug收集",
     path: "/bug",
     icon: "bug",
-    roles:["admin"]
+    roles: ["admin"]
   },
 ];
 export default menuList;

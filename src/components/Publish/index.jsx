@@ -8,9 +8,9 @@ const { TextArea } = Input;
 
 const Publish = (props) => {
   const { visible, onClose = () => { }, data } = props;
-  const [article] = useState({
+  const [article, setArticle] = useState({
     tid: "",
-
+    brief: "2",
   })
 
   const [fileList, setFileList] = useState([]);
@@ -20,16 +20,29 @@ const Publish = (props) => {
 
   const handleOk = () => {
     // 发布
-    console.log(article);
-    handleUpload();
+    const { tid, brief } = article;
+    if (!tid || !brief || !fileList[0]) {
+      message.info('请输入完整的发布信息');
+      return;
+    }
+    handleUpload()
+
   }
 
   const handleCancel = () => {
     onClose()
   }
 
-  const handleChange = (value) => {
-    console.log(`selected ${value}`);
+  const tagChange = (value) => {
+    setArticle((article) => {
+      return { ...article, tid: value }
+    })
+  }
+  const briefChange = (e) => {
+    console.log(e.target.value);
+    // setArticle((article) => {
+    //   return { ...article, brief: e.target.value }
+    // })
   }
 
   const handleUpload = () => {
@@ -37,18 +50,16 @@ const Publish = (props) => {
     fileList.forEach(file => {
       formData.append('file', file);
     });
-    // this.setState({
-    //   uploading: true,
-    // });
-    // You can use any AJAX library you like
-    const url = 'http://localhost:3000/user/avatar';
+    formData.append('tid', article.tid);
+    formData.append('brief', article.brief);
+    formData.append('articleId', data.articleId);
     let config = {
       headers: {
         'Content-Type': "application/x-www-form-urlencoded",
         token: user.token
       },
     }
-    Axios.post(url,formData,config).then(res=>{
+    Axios.post('/article/pushlish', formData, config).then(res => {
       console.log(res);
     })
   };
@@ -75,11 +86,12 @@ const Publish = (props) => {
       title="发布文章"
       visible={visible}
       onOk={handleOk}
+
       onCancel={handleCancel}
     >
       <div className='flex column-center  w-100' >
         <span>分类：</span>
-        <Select defaultValue={tagList && tagList[0] && tagList[0].tagId} style={{ width: 120 }} onChange={handleChange}>
+        <Select value={article.tid} style={{ width: 120 }} onChange={tagChange}>
           {
             tagList.map(tag => {
               return <Option key={tag.tagId} value={tag.tagId}>{tag.title}</Option>
@@ -100,7 +112,7 @@ const Publish = (props) => {
           width: '50px',
           display: 'inline-block'
         }}>描述：</span>
-        <TextArea allowClear rows={3} />
+        <TextArea value={article.brief} onChange={briefChange} allowClear rows={3} />
       </div>
 
     </Modal>

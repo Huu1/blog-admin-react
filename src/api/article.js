@@ -1,4 +1,6 @@
 import request from '@/utils/request'
+import { message } from 'antd';
+
 
 export function newAricle(data) {
   return request({
@@ -6,4 +8,14 @@ export function newAricle(data) {
     method: 'post',
     data
   })
+}
+
+export const delConfirm = async (articleId, cb = () => { }) => {
+  const { code, msg } = await request.post('article/del', { articleId });
+  if (code === 0) {
+    message.success(msg);
+    cb();
+  } else {
+    message.info(msg);
+  }
 }
