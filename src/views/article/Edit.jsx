@@ -119,7 +119,7 @@ const Edit = (props) => {
         <div className='flex column-center between'>
           <div>标题：</div>  <Input value={article.title} onChange={titleChange} style={{ width: "30vw" }} />
           <div style={{ marginLeft: 'auto' }}>{info}</div>
-          <Button type="primary" style={{ marginLeft: "30px" }}>发布</Button>
+          {/* <Button type="primary" style={{ marginLeft: "30px" }}>发布</Button> */}
         </div>
       </Card>
       <br />

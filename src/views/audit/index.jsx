@@ -1,16 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { withRouter } from "react-router-dom";
 import * as dayjs from 'dayjs';
-import { Card, Button, List, message, Popconfirm, Modal, Select, Table, Divider, Tag } from "antd";
+import { Card, Button, List, message, Popconfirm, Modal, Select, Table, Divider, Tag, Input } from "antd";
 import request from '@/utils/request'
-import Publish from '@/components/Publish'
 import { useSelector } from "react-redux";
 import { useRequest } from "../../utils/useHttp";
 import Img from "../../components/ImgPreview";
-import { delConfirm } from "../../api/article";
 const { Option } = Select;
+const { TextArea } = Input
 const baseUrl = process.env.REACT_APP_BASE_API;
-
 const Format = 'YYYY-MM-DD HH:mm';
 
 const formatDate = (number) => {
@@ -89,11 +87,16 @@ const columnsInit = [
   },
 ];
 
-const Craft = (props) => {
+const Audit = (props) => {
   const { history } = props;
   const [newLoading, setNewLoading] = useState(false);
+  const [auditVisible, setAuditVisible] = useState(false);
   const [pulishVisible, setPulishVisible] = useState(false);
   const [currentArticle, setCrurrentArticle] = useState(null);
+  const [auditRes, setAuditRes] = useState({
+    status: 1,
+    info: ''
+  });
   const [columns, setColumns] = useState(columnsInit);
 
   const { appData: { tagList = [] } } = useSelector(state => state.app);
@@ -121,17 +124,14 @@ const Craft = (props) => {
     })
   }, [current, pageSize, searchParam, setParam])
 
+
+
   useEffect(() => {
-    const delConfirmHandle = (articleId) => {
-      delConfirm(articleId, () => {
-        searchClickHandle();
-      })
-    }
-    const editDraft = (articleId) => {
-      const hide = message.loading('loading...', 0);
+    const preivewArticle = (articleId) => {
+      const hide = message.loading('loading...', 0)
       setTimeout(() => {
-        hide()
-        history.push('/article/new/' + articleId);
+        history.push('/article/view/' + articleId);
+        hide();
       }, 300);
     }
     const getColumns = (tagList) => {
@@ -142,55 +142,29 @@ const Craft = (props) => {
       columnsInit.find(i => i.key === 'action').render = (record, article) => {
         const { status, articleId } = article;
         // eslint-disable-next-line no-lone-blocks
+        const preivew = () => <Button type='link' onClick={()=>{preivewArticle(articleId)}}>预览</Button>
         {/* // 1:草稿  2:待审核  3:已发布  4:驳回 */ }
-        const deleteAction = () => {
-          return (
-            <Popconfirm
-              title="确定删除此草稿,不可恢复"
-              onConfirm={() => { delConfirmHandle(articleId) }}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button type="link" >删除</Button>
-            </Popconfirm>
-          )
-        }
-        const editAtion = () => {
-          return <Button type='link' onClick={() => { editDraft(articleId) }}>编辑</Button>
-        }
         if (status === 1) {
           return <span>
-            <Button type='link' onClick={() => { onSetCrurrentArticle(article) }}>发布</Button>
-            <Divider type="vertical" />
-            {
-              editAtion()
-            }
-            <Divider type="vertical" />
-            {
-              deleteAction()
-            }
+            {preivew()}
           </span>
         } else if (status === 2) {
           return <span>
-            {
-              editAtion()
-            }
+            {<Button type='link' onClick={() => { onAuditHandle(article) }}>审核</Button>}
+            <Divider type="vertical" />
+            <Button type='link'>下架</Button>
           </span>
         } else if (status === 3) {
           return <span>
-            <Button type='link'>查看</Button>
+            {preivew()}
             <Divider type="vertical" />
             <Button type='link'>下架</Button>
           </span>
         } else {
           return <span>
-            {
-              editAtion()
-            }
+            <Button type='link'>驳回原因</Button>
             <Divider type="vertical" />
-            {
-              deleteAction()
-            }
+            {preivew()}
           </span>
         }
       }
@@ -199,21 +173,9 @@ const Craft = (props) => {
     setColumns(getColumns(tagList))
   }, [history, searchClickHandle, tagList])
 
-
-  const newArticle = async () => {
-    setNewLoading(true);
-    const { code, data, msg } = await request.post('article/new', {});
-    setNewLoading(false);
-    if (code === 0) {
-      history.push('/article/new/' + data.articleId);
-    } else {
-      message.info(msg)
-    }
-  }
-
-  const onSetCrurrentArticle = (article) => {
+  const onAuditHandle = (article) => {
     setCrurrentArticle(article);
-    setPulishVisible(true);
+    setAuditVisible(true);
   }
 
   const statusChange = (status) => {
@@ -240,10 +202,55 @@ const Craft = (props) => {
     })
   }
 
-  const publishSuccessHandle = () => {
-    searchClickHandle();
-    setPulishVisible(false);
+  const auditHandleOk = () => {
+    setAuditVisible(true);
+    const { articleId } = currentArticle;
+    const { status, info } = auditRes;
+    if (!articleId) return;
+    let param;
+
+    if (status === 2 && !info) {
+      return message.info('请输入驳回原因')
+    } else {
+      param = {
+        status,
+        info,
+        articleId
+      }
+    }
+    request.post('article/setAudit', param).then(res => {
+      const { code, msg } = res;
+      if (code === 0) {
+        message.info(msg);
+        setAuditVisible(false);
+        setSearchParam((p) => {
+          return { ...p, current: 1 }
+        })
+        searchClickHandle();
+      } else {
+        message.error(msg)
+      }
+    })
   }
+
+  const auditHandleCancel = () => {
+    setAuditVisible(false);
+  }
+
+  const auditChange = (value) => {
+    setAuditRes((p) => {
+      return { ...p, status: value }
+    })
+  }
+
+  const auditInfoChange = (e) => {
+    const info = e.target.value
+    setAuditRes((p) => {
+      return { ...p, info }
+    })
+  }
+
+
 
   return (
     <div className="app-container">
@@ -267,7 +274,6 @@ const Craft = (props) => {
             }
           </Select>
           <Button style={{ marginLeft: "2em" }} type="default" loading={isLoading} onClick={searchClickHandle}>查询</Button>
-          <Button type="primary" style={{ marginLeft: "auto" }} loading={newLoading} onClick={newArticle}>新建文章</Button>
         </div>
 
       </Card>
@@ -296,9 +302,29 @@ const Craft = (props) => {
           scroll={{ x: 2000 }}
         />
       </Card>
-      <Publish visible={pulishVisible} successHandle={publishSuccessHandle} data={currentArticle} onClose={() => { setPulishVisible(false) }} />
+
+      <Modal
+        title="文章审核"
+        visible={auditVisible}
+        onOk={auditHandleOk}
+        onCancel={auditHandleCancel}
+      >
+        <div>
+          <span>审核结果：</span>
+          <Select defaultValue={1} value={auditRes.status} style={{ width: 150 }} onChange={auditChange} >
+            <Option value={1}>通过</Option>
+            <Option value={2}>拒绝</Option>
+          </Select>
+        </div>
+        {
+          auditRes.status === 2 && <div>
+            <span>驳回原因：</span>
+            <TextArea value={auditRes.info} onChange={auditInfoChange} />
+          </div>
+        }
+      </Modal>
     </div>
   );
 };
 
-export default withRouter(Craft);
+export default withRouter(Audit);

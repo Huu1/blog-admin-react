@@ -54,12 +54,12 @@ const menuList = [
       //   roles:["admin","editor"],
       // },
       {
-        title: "草稿箱",
+        title: "我的草稿箱",
         path: "/article/write",
         roles: ["admin", "user"],
       },
       {
-        title: "我的文章",
+        title: "我的文章列表",
         path: "/article/all",
         roles: ["admin", "user"],
       },
@@ -74,6 +74,12 @@ const menuList = [
       //   roles:["admin","editor"],
       // },
     ],
+  },
+  {
+    title: "文章审核",
+    path: "/audit",
+    icon: "usergroup-add",
+    roles: ["admin"]
   },
   // {
   //   title: "路由嵌套",

@@ -34,6 +34,7 @@ const errorHandle = (status, other) => {
       break;
     // 404请求不存在
     case 404:
+
       break;
     default:
       console.log(other);
