@@ -21,6 +21,7 @@ function reducer(state, action) {
 const initArticle = {
   title: '',
   content: "",
+  initContent:'',
   articleId: ""
 }
 
@@ -33,7 +34,6 @@ const Edit = (props) => {
 
   const [article, dispatch] = useReducer(reducer, initArticle)
 
-
   useEffect(() => {
     let timer;
     request.get(`article/${id}`).then(res => {
@@ -43,7 +43,7 @@ const Edit = (props) => {
           type: "changeArticle",
           payload: {
             title: data.title,
-            content: data.content,
+            initContent:data.content,
             articleId: data.articleId,
           }
         })
@@ -123,7 +123,7 @@ const Edit = (props) => {
         </div>
       </Card>
       <br />
-      <Markdown value={article.content} valueChange={valueChange} />
+      <Markdown initValue={article.initContent} valueChange={valueChange} />
     </div>
   );
 };

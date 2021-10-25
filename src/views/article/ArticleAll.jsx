@@ -134,6 +134,13 @@ const Craft = (props) => {
         history.push('/article/new/' + articleId);
       }, 300);
     }
+    const preivewArticle = (articleId) => {
+      const hide = message.loading('loading...', 0)
+      setTimeout(() => {
+        history.push('/article/view/' + articleId);
+        hide();
+      }, 300);
+    }
     const getColumns = (tagList) => {
       columnsInit.find(i => i.key === 'tid').render = (record) => {
         const tag = tagList.find(i => i.tagId === record)
@@ -178,9 +185,9 @@ const Craft = (props) => {
           </span>
         } else if (status === 3) {
           return <span>
-            <Button type='link'>查看</Button>
-            <Divider type="vertical" />
-            <Button type='link'>下架</Button>
+            <Button type='link' onClick={()=>{preivewArticle(articleId)}}>查看</Button>
+            {/* <Divider type="vertical" /> */}
+            {/* <Button type='link'>下架</Button> */}
           </span>
         } else {
           return <span>

@@ -6,7 +6,7 @@ import Vditor from 'vditor';
 import 'vditor/dist/index.css';
 
 const Markdown = (props) => {
-  const { value, valueChange = () => { } } = props
+  const { initValue, valueChange = () => { } } = props
   const [vditor, setVditor] = useState(null);
   const ref = useRef(null);
   useEffect(() => {
@@ -31,13 +31,13 @@ const Markdown = (props) => {
   }, [valueChange])
 
   useEffect(() => {
-    if (vditor && value && !ref.current) {
+    if (vditor && initValue && !ref.current) {
       setTimeout(() => {
-        vditor.setValue(value);
+        vditor.setValue(initValue);
         ref.current=true;
       }, 200);
     }
-  }, [value, vditor])
+  }, [initValue, vditor])
   return (
     <div id='id'></div>
   );

@@ -106,7 +106,7 @@ const Audit = (props) => {
     tid: null,
   });
 
-  const { state, setParam } = useRequest('article/queryAll', {
+  const { state, setParam } = useRequest('article/allArticle', {
     current: 1,
     pageSize: 5,
     status: 0,
@@ -151,14 +151,14 @@ const Audit = (props) => {
         } else if (status === 2) {
           return <span>
             {<Button type='link' onClick={() => { onAuditHandle(article) }}>审核</Button>}
-            <Divider type="vertical" />
-            <Button type='link'>下架</Button>
+            {/* <Divider type="vertical" />
+            <Button type='link'>下架</Button> */}
           </span>
         } else if (status === 3) {
           return <span>
             {preivew()}
-            <Divider type="vertical" />
-            <Button type='link'>下架</Button>
+            {/* <Divider type="vertical" />
+            <Button type='link'>下架</Button> */}
           </span>
         } else {
           return <span>

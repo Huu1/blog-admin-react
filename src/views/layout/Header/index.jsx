@@ -10,6 +10,8 @@ import BreadCrumb from "@/components/BreadCrumb";
 import "./index.less";
 const { Header } = Layout;
 
+const baseUrl = process.env.REACT_APP_BASE_API;
+
 const LayoutHeader = (props) => {
   const {
     token,
@@ -21,6 +23,7 @@ const LayoutHeader = (props) => {
     fixedHeader,
   } = props;
   // token && getUserInfo(token);
+  console.log(avatar);
   const handleLogout = (token) => {
     Modal.confirm({
       title: "注销",
@@ -49,7 +52,7 @@ const LayoutHeader = (props) => {
       <Menu.Item key="project">
         <a
           target="_blank"
-          href="https://github.com/NLRX-WJC/react-antd-admin-template"
+          href=""
           rel="noopener noreferrer"
         >
           项目地址
@@ -78,6 +81,7 @@ const LayoutHeader = (props) => {
     }
     return styles;
   };
+  console.log(baseUrl+avatar);
   return (
     <>
       {/* 这里是仿照antd pro的做法,如果固定header，
@@ -95,7 +99,7 @@ const LayoutHeader = (props) => {
           <div className="dropdown-wrap">
             <Dropdown overlay={menu}>
               <div>
-                <Avatar shape="square" size="medium" src={avatar} />
+                <Avatar shape="square" size="medium" src={baseUrl+'/'+avatar} />
                 <Icon style={{ color: "rgba(0,0,0,.3)" }} type="caret-down" />
               </div>
             </Dropdown>
