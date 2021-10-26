@@ -151,8 +151,8 @@ const Audit = (props) => {
         } else if (status === 2) {
           return <span>
             {<Button type='link' onClick={() => { onAuditHandle(article) }}>审核</Button>}
-            {/* <Divider type="vertical" />
-            <Button type='link'>下架</Button> */}
+            <Divider type="vertical" />
+            {preivew()}
           </span>
         } else if (status === 3) {
           return <span>

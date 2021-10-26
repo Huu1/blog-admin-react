@@ -1,24 +1,25 @@
 import React, { useCallback, useState } from "react";
 import "./index.less";
-import { Upload, message, Button, Icon, Modal, Select, Input } from 'antd';
+import { message, Modal, Select, Input, Tag } from 'antd';
 import { useSelector } from "react-redux";
 import Axios from "axios";
 import ImgLoad from "../ImgeUpload";
 const { Option } = Select;
 const { TextArea } = Input;
-
+const { CheckableTag } = Tag;
 const Publish = (props) => {
   const { visible, onClose = () => { }, data, successHandle = () => { } } = props;
 
 
   const [fileList, setFileList] = useState([]);
 
-  const { appData: { tagList = [] } } = useSelector(state => state.app);
+  const { appData: { tagList = [], labelList = [] } } = useSelector(state => state.app);
 
   const getInitInfo = useCallback(() => {
     return {
       tid: tagList.length && tagList[0].tagId,
       brief: "",
+      labelId: [],
     }
   }, [tagList])
 
@@ -28,8 +29,8 @@ const Publish = (props) => {
 
   const handleOk = () => {
     // 发布
-    const { tid, brief } = article;
-    if (!tid || !brief || !fileList.length) {
+    const { tid, brief ,labelId} = article;
+    if (!tid || !brief || !fileList.length || labelId.length===0) {
       message.info('请输入完整的发布信息');
       return;
     }
@@ -61,6 +62,7 @@ const Publish = (props) => {
     formData.append('tid', article.tid);
     formData.append('brief', article.brief);
     formData.append('articleId', data.articleId);
+    formData.append('labelId', JSON.stringify(article.labelId));
 
     let config = {
       headers: {
@@ -87,6 +89,14 @@ const Publish = (props) => {
     setFileList(fileList)
   }
 
+  const handleChange = (id, checked) => {
+    const { labelId } = article;
+    const nextSelectedLabels = checked ? [...labelId, id] : labelId.filter(t => t !== id);
+    setArticle((p) => {
+      return { ...p, labelId: nextSelectedLabels }
+    })
+  }
+
   return (
     <Modal
       title="发布文章"
@@ -104,6 +114,20 @@ const Publish = (props) => {
             })
           }
         </Select>
+      </div>
+      <div className='flex column-center  w-100' style={{lineHeight:'4em'}} >
+        <span>标签：</span>
+        <div>
+          {labelList.map(label => (
+            <CheckableTag
+              key={label.labelId}
+              checked={article.labelId.indexOf(label.labelId) > -1}
+              onChange={checked => handleChange(label.labelId, checked)}
+            >
+              <span style={{fontSize:'.8rem',cursor:'pointer'}}>{label.title}</span>
+            </CheckableTag>
+          ))}
+        </div>
       </div>
       <div className='flex column-center  mr-top-em  w-100' >
         <span>主图：</span>
