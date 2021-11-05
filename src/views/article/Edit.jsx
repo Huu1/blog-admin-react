@@ -43,7 +43,7 @@ const Edit = (props) => {
           type: "changeArticle",
           payload: {
             title: data.title,
-            initContent:data.content,
+            initContent:data.content.content,
             articleId: data.articleId,
           }
         })

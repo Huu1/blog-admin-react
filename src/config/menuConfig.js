@@ -53,13 +53,13 @@ const menuList = [
       //   path: "/components/richTextEditor",
       //   roles:["admin","editor"],
       // },
+      // {
+      //   title: "我的草稿箱",
+      //   path: "/article/write",
+      //   roles: ["admin", "user"],
+      // },
       {
-        title: "我的草稿箱",
-        path: "/article/write",
-        roles: ["admin", "user"],
-      },
-      {
-        title: "我的文章列表",
+        title: "我的文章",
         path: "/article/all",
         roles: ["admin", "user"],
       },
@@ -76,7 +76,7 @@ const menuList = [
     ],
   },
   {
-    title: "文章审核",
+    title: "全部文章",
     path: "/audit",
     icon: "usergroup-add",
     roles: ["admin"]

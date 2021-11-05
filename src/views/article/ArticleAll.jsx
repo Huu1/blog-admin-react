@@ -79,8 +79,8 @@ const columnsInit = [
   },
   {
     title: '类别',
-    key: 'tid',
-    dataIndex: 'tid',
+    key: 'tag',
+    dataIndex: 'tag',
   },
   {
     title: '操作',
@@ -142,9 +142,12 @@ const Craft = (props) => {
       }, 300);
     }
     const getColumns = (tagList) => {
-      columnsInit.find(i => i.key === 'tid').render = (record) => {
-        const tag = tagList.find(i => i.tagId === record)
-        return <Tag color={(tag && tag.color) || '#f50'}>{(tag && tag.title) || '暂未发布'}</Tag>
+      columnsInit.find(i => i.key === 'tag').render = (record) => {
+        if (!record) {
+          return <Tag color='#f50'>{'暂未发布'}</Tag>
+        }
+        const tag = tagList.find(i => i.tagId === record.tagId)
+        return <Tag color={tag && tag.color}>{tag && tag.title}</Tag>
       }
       columnsInit.find(i => i.key === 'action').render = (record, article) => {
         const { status, articleId } = article;
@@ -180,12 +183,12 @@ const Craft = (props) => {
         } else if (status === 2) {
           return <span>
             {
-              editAtion()
+              <Button type='link' onClick={() => { preivewArticle(articleId) }}>查看</Button>
             }
           </span>
         } else if (status === 3) {
           return <span>
-            <Button type='link' onClick={()=>{preivewArticle(articleId)}}>查看</Button>
+            <Button type='link' onClick={() => { preivewArticle(articleId) }}>查看</Button>
             {/* <Divider type="vertical" /> */}
             {/* <Button type='link'>下架</Button> */}
           </span>
