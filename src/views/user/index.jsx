@@ -1,9 +1,10 @@
 import React, { Component } from "react";
-import { Card, Button, Table, message, Divider } from "antd";
+import { Card, Button, Table, message, Divider, Switch } from "antd";
 import { getUsers, deleteUser, editUser, addUser } from "@/api/user";
 import TypingCard from '@/components/TypingCard'
 import EditUserForm from "./forms/edit-user-form"
 import AddUserForm from "./forms/add-user-form"
+import { setUserStatus } from "../../api/user";
 const { Column } = Table;
 class User extends Component {
   state = {
@@ -15,17 +16,19 @@ class User extends Component {
     addUserModalLoading: false,
   };
   getUsers = async () => {
-    const result = await getUsers()
-    const { users, status } = result.data
-    if (status === 0) {
+    const result = await getUsers();
+    const { code, data, msg } = result
+    if (code === 0) {
       this.setState({
-        users
+        users: data
       })
+    } else {
+      message.error(msg)
     }
   }
   handleEditUser = (row) => {
     this.setState({
-      currentRowData:Object.assign({}, row),
+      currentRowData: Object.assign({}, row),
       editUserModalVisible: true,
     });
   };
@@ -36,12 +39,12 @@ class User extends Component {
       message.error("不能删除管理员用户！")
       return
     }
-    deleteUser({id}).then(res => {
+    deleteUser({ id }).then(res => {
       message.success("删除成功")
       this.getUsers();
     })
   }
-  
+
   handleEditUserOk = _ => {
     const { form } = this.editUserFormRef.props;
     form.validateFields((err, values) => {
@@ -57,7 +60,7 @@ class User extends Component {
       }).catch(e => {
         message.success("编辑失败,请重试!")
       })
-      
+
     });
   };
 
@@ -81,11 +84,16 @@ class User extends Component {
         return;
       }
       this.setState({ addUserModalLoading: true, });
-      addUser(values).then((response) => {
-        form.resetFields();
-        this.setState({ addUserModalVisible: false, addUserModalLoading: false });
-        message.success("添加成功!")
-        this.getUsers()
+      addUser(values).then(({ code, msg }) => {
+        if (code === 0) {
+          form.resetFields();
+          this.setState({ addUserModalVisible: false, addUserModalLoading: false });
+          message.success("添加成功!")
+          this.getUsers();
+          return
+        }
+        message.info(msg)
+        this.setState({ addUserModalLoading: false });
       }).catch(e => {
         message.success("添加失败,请重试!")
       })
@@ -93,6 +101,15 @@ class User extends Component {
   };
   componentDidMount() {
     this.getUsers()
+  }
+
+  async statusOnChange(val, userId) {
+    const result = await setUserStatus({ uid: userId });
+    if (result.code === 0) {
+      message.success(result.msg);
+    } else {
+      message.error(result.msg);
+    }
   }
   render() {
     const { users } = this.state
@@ -105,20 +122,23 @@ class User extends Component {
     return (
       <div className="app-container">
         <TypingCard title='用户管理' source={cardContent} />
-        <br/>
+        <br />
         <Card title={title}>
-          <Table bordered rowKey="id" dataSource={users} pagination={false}>
-            <Column title="用户ID" dataIndex="id" key="id" align="center"/>
-            <Column title="用户名称" dataIndex="name" key="name" align="center"/>
-            <Column title="用户角色" dataIndex="role" key="role" align="center"/>
-            <Column title="用户描述" dataIndex="description" key="description" align="center" />
-            <Column title="操作" key="action" width={195} align="center"render={(text, row) => (
-              <span>
-                <Button type="primary" shape="circle" icon="edit" title="编辑" onClick={this.handleEditUser.bind(null,row)}/>
-                <Divider type="vertical" />
-                <Button type="primary" shape="circle" icon="delete" title="删除" onClick={this.handleDeleteUser.bind(null,row)}/>
-              </span>
-            )}/>
+          {/* avatar: "public/avatar/avatar(6).png"
+            createTime: 1635429470659
+            email: ""
+            name: ""
+            role: "user"
+            userId: "1234567"
+            username: "1" 
+          */}
+          <Table bordered rowKey="id" dataSource={users} pagination={false} rowKey={(i) => i.userId}>
+            <Column title="用户ID" dataIndex="userId" key="userId" align="center" />
+            <Column title="用户名称" dataIndex="name" key="name" align="center" />
+            <Column title="用户角色" dataIndex="role" key="role" align="center" />
+            <Column title="是否启用" key="action" width={195} align="center" render={(text, row) => (
+              <Switch disabled={row.role === 'admin'} defaultChecked={row.status === 0 ? false : true} onChange={(val) => this.statusOnChange(val, row.userId)} />
+            )} />
           </Table>
         </Card>
         <EditUserForm
@@ -128,14 +148,14 @@ class User extends Component {
           confirmLoading={this.state.editUserModalLoading}
           onCancel={this.handleCancel}
           onOk={this.handleEditUserOk}
-        />  
+        />
         <AddUserForm
           wrappedComponentRef={formRef => this.addUserFormRef = formRef}
           visible={this.state.addUserModalVisible}
           confirmLoading={this.state.addUserModalLoading}
           onCancel={this.handleCancel}
           onOk={this.handleAddUserOk}
-        />  
+        />
       </div>
     );
   }

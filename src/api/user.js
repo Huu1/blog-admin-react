@@ -10,7 +10,7 @@ export function reqUserInfo(token) {
 
 export function getUsers() {
   return request({
-    url: '/user/list',
+    url: '/user/findAll',
     method: 'get'
   })
 }
@@ -41,7 +41,15 @@ export function reqValidatUserID(data) {
 
 export function addUser(data) {
   return request({
-    url: '/user/add',
+    url: '/user/create',
+    method: 'post',
+    data
+  })
+}
+
+export function setUserStatus(data) {
+  return request({
+    url: '/user/status',
     method: 'post',
     data
   })

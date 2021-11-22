@@ -9,12 +9,12 @@ const menuList = [
     icon: "home",
     roles: ["admin", "editor", "guest"]
   },
-  {
-    title: "引导页",
-    path: "/guide",
-    icon: "key",
-    roles: ["admin", "editor"]
-  },
+  // {
+  //   title: "引导页",
+  //   path: "/guide",
+  //   icon: "key",
+  //   roles: ["admin", "editor"]
+  // },
   {
     title: "权限测试",
     path: "/permission",
@@ -33,7 +33,7 @@ const menuList = [
       {
         title: "guest页面",
         path: "/permission/guestPage",
-        roles: ["guest"]
+        roles: ["admin"]
       },
       {
         title: "user页面",
@@ -75,12 +75,6 @@ const menuList = [
       // },
     ],
   },
-  {
-    title: "全部文章",
-    path: "/audit",
-    icon: "usergroup-add",
-    roles: ["admin"]
-  },
   // {
   //   title: "路由嵌套",
   //   path: "/nested",
@@ -114,6 +108,18 @@ const menuList = [
   {
     title: "用户管理",
     path: "/user",
+    icon: "usergroup-add",
+    roles: ["admin"]
+  },
+  {
+    title: "分类管理",
+    path: "/label",
+    icon: "usergroup-add",
+    roles: ["admin"]
+  },
+  {
+    title: "标签管理",
+    path: "/tag",
     icon: "usergroup-add",
     roles: ["admin"]
   },

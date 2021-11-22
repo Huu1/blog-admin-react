@@ -38,29 +38,15 @@ class AddUserForm extends Component {
         confirmLoading={confirmLoading}
       >
         <Form {...formItemLayout}>
-          <Form.Item label="用户ID:">
-            {getFieldDecorator("id", {
-              rules: [{ required: true, validator: this.validatUserID }],
-            })(<Input placeholder="请输入用户ID" />)}
+          <Form.Item label="账号:">
+            {getFieldDecorator("username", {
+              rules: [{ required: true}],
+            })(<Input placeholder="请输入用户名" />)}
           </Form.Item>
-          <Form.Item label="用户名称:">
-            {getFieldDecorator("name", {
-              rules: [{ required: true, message: "请输入用户名称!" }],
-            })(<Input placeholder="请输入用户名称" />)}
-          </Form.Item>
-          <Form.Item label="用户角色:">
-            {getFieldDecorator("role", {
-              initialValue: "admin",
-            })(
-              <Select style={{ width: 120 }}>
-                <Select.Option value="admin">admin</Select.Option>
-                <Select.Option value="guest">guest</Select.Option>
-              </Select>
-            )}
-          </Form.Item>
-          <Form.Item label="用户描述:">
-            {getFieldDecorator("description", {
-            })(<TextArea rows={4} placeholder="请输入用户描述" />)}
+          <Form.Item label="密码:">
+            {getFieldDecorator("password", {
+              rules: [{ required: true, message: "请输入用户密码!" }],
+            })(<Input placeholder="请输入用户密码" />)}
           </Form.Item>
         </Form>
       </Modal>

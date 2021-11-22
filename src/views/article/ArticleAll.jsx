@@ -49,10 +49,8 @@ const columnsInit = [
     key: 'status',
     render: (record) => {
       const map = {
-        1: { color: 'magenta', title: "草稿箱" },
-        2: { color: 'red', title: "待审核" },
-        3: { color: 'volcano', title: "已发布" },
-        4: { color: '#f50', title: "驳回" },
+        0: { color: 'magenta', title: "草稿箱" },
+        1: { color: 'red', title: "已发布" },
       }
       const target = map[record];
       return (
@@ -99,15 +97,14 @@ const Craft = (props) => {
   const { appData: { tagList = [] } } = useSelector(state => state.app);
 
   const [searchParam, setSearchParam] = useState({
-    status: null,
-    tid: null,
+    status: 0,
+    tid: '0',
   });
 
   const { state, setParam } = useRequest('article/queryAll', {
+    ...searchParam,
     current: 1,
     pageSize: 5,
-    status: 0,
-    tid: 0,
   });
   const { data: { data: { list: tableData = [], total = 0, pageSize, current } = { list: [], total: 0 } }, isLoading, isError } = state;
 
@@ -116,8 +113,8 @@ const Craft = (props) => {
     setParam({
       pageSize,
       current,
-      status: status || 0,
-      tid: tid || 0
+      status,
+      tid
     })
   }, [current, pageSize, searchParam, setParam])
 
@@ -170,37 +167,15 @@ const Craft = (props) => {
         }
         if (status === 1) {
           return <span>
-            <Button type='link' onClick={() => { onSetCrurrentArticle(article) }}>发布</Button>
-            <Divider type="vertical" />
-            {
-              editAtion()
-            }
-            <Divider type="vertical" />
-            {
-              deleteAction()
-            }
-          </span>
-        } else if (status === 2) {
-          return <span>
-            {
-              <Button type='link' onClick={() => { preivewArticle(articleId) }}>查看</Button>
-            }
-          </span>
-        } else if (status === 3) {
-          return <span>
             <Button type='link' onClick={() => { preivewArticle(articleId) }}>查看</Button>
-            {/* <Divider type="vertical" /> */}
-            {/* <Button type='link'>下架</Button> */}
           </span>
         } else {
           return <span>
-            {
-              editAtion()
-            }
+            <Button type='link' onClick={() => { onSetCrurrentArticle(article) }}>发布</Button>
             <Divider type="vertical" />
-            {
-              deleteAction()
-            }
+            {editAtion()}
+            <Divider type="vertical" />
+            {deleteAction()}
           </span>
         }
       }
@@ -260,16 +235,13 @@ const Craft = (props) => {
       <Card bordered={false} title='文章'>
         <div className='flex column-center'>
           <span>文章状态：</span>
-          <Select defaultValue={null} value={searchParam.status} style={{ width: 150, marginRight: "2em" }} onChange={statusChange} >
-            <Option value={null}>全部</Option>
-            <Option value={3}>已发布</Option>
-            <Option value={2}>待审核</Option>
-            <Option value={4}>驳回</Option>
-            <Option value={1}>草稿箱</Option>
+          <Select value={searchParam.status} style={{ width: 150, marginRight: "2em" }} onChange={statusChange} >
+            <Option value={1}>已发布</Option>
+            <Option value={0}>草稿箱</Option>
           </Select>
           <span>文章类别：</span>
-          <Select defaultValue={null} value={searchParam.tid} style={{ width: 150 }} onChange={tagChange}>
-            <Option value={null}>全部</Option>
+          <Select value={searchParam.tid} style={{ width: 150 }} onChange={tagChange}>
+            <Option value={'0'}>全部</Option>
             {
               tagList.map(tag => {
                 return <Option key={tag.tagId} value={tag.tagId}>{tag.title}</Option>
