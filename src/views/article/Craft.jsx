@@ -5,6 +5,7 @@ import request from '@/utils/request'
 import Publish from '@/components/Publish'
 import * as dayjs from 'dayjs';
 import { delConfirm } from "../../api/article";
+import { useCallback } from "react";
 
 const Format = 'YYYY-MM-DD HH:mm:ss A';
 
@@ -19,17 +20,18 @@ const Craft = (props) => {
   const [pulishVisible, setPulishVisible] = useState(false);
   const [currentArticle, setCrurrentArticle] = useState(null);
 
-  useEffect(() => {
-    const fn = async () => {
-      const { code, data, msg } = await request.get('article/allDraft');
-      if (code === 0) {
-        setDraft(data)
-      } else {
-        message.info(msg);
-      }
+  const fetchData = useCallback(async () => {
+    const { code, data, msg } = await request.get('article/allDraft');
+    if (code === 0) {
+      setDraft(data);
+    } else {
+      message.info(msg);
     }
-    fn();
   }, [])
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData])
 
   const newArticle = async () => {
     setNewLoading(true);
@@ -53,8 +55,11 @@ const Craft = (props) => {
       history.push('/article/new/' + articleId);
     }, 300);
   }
-
-
+  const peiviewDraft = (articleId) => {
+    setTimeout(() => {
+      history.push('/article/view/' + articleId);
+    }, 300);
+  }
 
   const onSetCrurrentArticle = (article) => {
     setCrurrentArticle(article);
@@ -88,14 +93,14 @@ const Craft = (props) => {
                 ]}
             >
               <List.Item.Meta
-                title={<span onClick={() => { editDraft(item.articleId) }} style={{ fontWeight: "bold", fontSize: "18px", cursor: 'pointer' }}>{item.title || '无标题'}</span>}
+                title={<span onClick={() => { peiviewDraft(item.articleId) }} style={{ fontWeight: "bold", fontSize: "18px", cursor: 'pointer' }}>{item.title || '无标题'}</span>}
                 description={'上次编辑：' + formatDate(item.lastUpdateTime)}
               />
             </List.Item>
           )}
         />
       </Card>
-      <Publish visible={pulishVisible} data={currentArticle} onClose={() => { setPulishVisible(false) }} />
+      <Publish visible={pulishVisible} data={currentArticle} successHandle={() => {fetchData();setPulishVisible(false)}} onClose={() => { setPulishVisible(false) }} />
     </div>
   );
 };

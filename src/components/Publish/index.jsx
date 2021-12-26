@@ -29,8 +29,8 @@ const Publish = (props) => {
 
   const handleOk = () => {
     // 发布
-    const { tid, brief ,labelId} = article;
-    if (!tid || !brief || !fileList.length || labelId.length===0) {
+    const { tid, brief, labelId } = article;
+    if (!tid || !brief || labelId.length === 0) {
       message.info('请输入完整的发布信息');
       return;
     }
@@ -76,7 +76,6 @@ const Publish = (props) => {
         if (code === 0) {
           successHandle();
           setArticle(getInitInfo())
-
           message.success(msg)
         } else {
           message.error(msg)
@@ -115,7 +114,7 @@ const Publish = (props) => {
           }
         </Select>
       </div>
-      <div className='flex column-center  w-100' style={{lineHeight:'4em'}} >
+      <div className='flex column-center  w-100' style={{ lineHeight: '4em' }} >
         <span>标签：</span>
         <div>
           {labelList.map(label => (
@@ -124,7 +123,7 @@ const Publish = (props) => {
               checked={article.labelId.indexOf(label.labelId) > -1}
               onChange={checked => handleChange(label.labelId, checked)}
             >
-              <span style={{fontSize:'.8rem',cursor:'pointer'}}>{label.title}</span>
+              <span style={{ fontSize: '.8rem', cursor: 'pointer' }}>{label.title}</span>
             </CheckableTag>
           ))}
         </div>

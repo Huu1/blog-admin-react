@@ -20,7 +20,7 @@ const Priview = (props) => {
       if (code === 0) {
         Vditor.preview(
           content.current,
-          data.content,
+          data.content.content,
         );
       } else {
         message.error(msg);

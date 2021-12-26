@@ -1,7 +1,5 @@
 import React from "react";
 import TypingCard from "@/components/TypingCard";
-import wechat from "@/assets/images/wechat.jpg";
-import reward from "@/assets/images/reward.jpg";
 const About = () => {
   const cardContent = `
   `;
