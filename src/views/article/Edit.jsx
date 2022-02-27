@@ -1,8 +1,21 @@
 import React, { useCallback, useEffect, useState, useRef, useReducer } from "react";
 import Markdown from "@/components/Markdown";
-import { Card, Input, message, Button } from "antd";
+import { Card, Input, message, Button, Upload, Icon } from "antd";
 import { withRouter } from "react-router-dom";
 import request from '@/utils/request'
+
+function useDebounce(initValue, delay = 300) {
+  const [state, setState] = useState(initValue)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setState(initValue)
+    }, delay);
+    return () => {
+      timer && clearTimeout(timer)
+    }
+  }, [delay, initValue])
+  return state;
+}
 
 function reducer(state, action) {
   const { type, payload } = action;
@@ -19,23 +32,29 @@ function reducer(state, action) {
 }
 
 const initArticle = {
-  title: '',
+  title: "",
   content: "",
-  initContent:'',
   articleId: ""
 }
 
 const Edit = (props) => {
   const { history, match: { params: { id } } } = props;
 
-  const didMountRef = useRef(false);
-
   const [info, setInfo] = useState('文章将自动保存到草稿箱');
 
-  const [article, dispatch] = useReducer(reducer, initArticle)
+  const [loading, setLoading] = useState(true);
+
+  const [article, dispatch] = useReducer(reducer, initArticle);
+  const [initValue, setInitValue] = useState();
+
+  const titleChangeTimer = useRef();
+
+  const [editor, setEditot] = useState()
+  const [fileList, setFileList] = useState([])
 
   useEffect(() => {
     let timer;
+    setLoading(true)
     request.get(`article/${id}`).then(res => {
       const { code, data, msg } = res;
       if (code === 0) {
@@ -43,88 +62,110 @@ const Edit = (props) => {
           type: "changeArticle",
           payload: {
             title: data.title,
-            initContent:data.content.content,
+            content: data.content.content,
             articleId: data.articleId,
           }
         })
+        setInitValue(data.content.content);
       } else {
         message.error(msg);
         timer = setTimeout(() => {
           history.push('/article/write')
         }, 2000)
       }
+      setLoading(false)
     })
     return () => {
       clearTimeout(timer);
     }
   }, [history, id])
 
-  const save = useCallback(() => {
-    const fn = () => {
-      setInfo('保存中...');
-      const { title, content, articleId } = article
-      request.post(`article/edit`, {
-        title,
-        content,
-        articleId
-      }).then(res => {
-        const { code } = res;
-        if (code === 0) {
-          setTimeout(() => {
-            setInfo('保存成功！');
-          }, 300);
-        } else {
-          setInfo('保存失败！');
-        }
-      })
-    }
-    fn();
-  }, [setInfo, article])
-
-  useEffect(() => {
-    let timer;
-    timer = setTimeout(() => {
-      if (didMountRef.current) {
-        save();
+  const save = (title, content) => {
+    setInfo('保存中...');
+    const { articleId } = article
+    request.post(`article/edit`, {
+      title,
+      content,
+      articleId
+    }).then(res => {
+      const { code } = res;
+      if (code === 0) {
+        setTimeout(() => {
+          setInfo('保存成功！');
+        }, 300);
       } else {
-        didMountRef.current = true;
+        setInfo('保存失败！');
       }
-    }, 1000);
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [article, save])
+    })
+  }
 
-  const valueChange = useCallback((value) => {
-    const fn = () => {
-      dispatch({
-        type: "changeContent",
-        payload: value
-      })
-    }
-    fn()
-  }, [])
+  const upLoadprops = {
+    name: 'file',
+    accept: '.md',
+    beforeUpload: function beforeUpload(file) {
+      setFileList([file]);
+      const fileReader = new FileReader();
+      fileReader.readAsText(file)
+      fileReader.onload = function () {
+        // eslint-disable-next-line no-unused-expressions
+        editor?.setValue(fileReader.result);
+        valueChange(fileReader.result);
+      }
+      return false;
+    },
+    onChange({ fileList }) {
+      setFileList([...fileList]);
+    },
+  };
+
 
   const titleChange = (e) => {
     dispatch({
       type: "changeTitle",
       payload: e.target.value
     })
+    if (titleChangeTimer.current) {
+      clearTimeout(titleChangeTimer.current)
+    }
+    titleChangeTimer.current = setTimeout(() => {
+      save(article.title, article.content)
+    }, 500);
   }
 
+  const valueChange = (value) => {
+    dispatch({
+      type: "changeContent",
+      payload: value
+    })
+    if (titleChangeTimer.current) {
+      clearTimeout(titleChangeTimer.current)
+    }
+    titleChangeTimer.current = setTimeout(() => {
+      save(article.title, value)
+    }, 500);
+  }
+
+  const editLoad = (editor) => {
+    setEditot(editor)
+  }
 
   return (
-    <div className="app-container">
-      <Card title="新建文章"  >
+    <Card className="app-container" loading={loading}>
+      <Card title={<>
+        <span>标题：</span>  <Input value={article.title} onChange={titleChange} style={{ width: "30vw" }} />
+      </>}  >
         <div className='flex column-center between'>
-          <div>标题：</div>  <Input value={article.title} onChange={titleChange} style={{ width: "30vw" }} />
+          <Upload {...upLoadprops} fileList={fileList}>
+            <Button disabled={fileList.length >= 1}>
+              <Icon type="upload" />上传md文件
+            </Button>
+          </Upload>
           <div style={{ marginLeft: 'auto' }}>{info}</div>
-          {/* <Button type="primary" style={{ marginLeft: "30px" }}>发布</Button> */}
         </div>
       </Card>
       <br />
-      <Markdown initValue={article.initContent} valueChange={valueChange} />
-    </div>
+      <Markdown initValue={initValue} valueChange={valueChange} editLoad={editLoad} />
+    </Card>
   );
 };
 

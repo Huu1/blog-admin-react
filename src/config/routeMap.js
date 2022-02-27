@@ -7,9 +7,6 @@ const Edit = Loadable({loader: () => import(/*webpackChunkName:'Markdown'*/'@/vi
 const ArticleAll = Loadable({loader: () => import(/*webpackChunkName:'Markdown'*/'@/views/article/ArticleAll'),loading: Loading});
 const ViewArticle = Loadable({loader: () => import(/*webpackChunkName:'Markdown'*/'@/views/audit/viewArticle'),loading: Loading});
 const Error404 = Loadable({loader: () => import(/*webpackChunkName:'Error404'*/'@/views/error/404'),loading: Loading});
-const User = Loadable({loader: () => import(/*webpackChunkName:'User'*/'@/views/user'),loading: Loading});
-const About = Loadable({loader: () => import(/*webpackChunkName:'About'*/'@/views/about'),loading: Loading});
-const Bug = Loadable({loader: () => import(/*webpackChunkName:'Bug'*/'@/views/bug'),loading: Loading});
 
 export default [
   { path: "/dashboard", component: Dashboard, roles: ["admin","user","guest"] },
@@ -17,8 +14,5 @@ export default [
   { path: "/article/all", component: ArticleAll, roles: ["admin","user"] },
   { path: "/article/new/:id", component: Edit, roles: ["admin","user"] },
   { path: "/article/view/:id", component: ViewArticle, roles: ["admin","user"] },
-  { path: "/user", component: User, roles: ["admin"] },
-  { path: "/about", component: About, roles: ["admin"] },
-  { path: "/bug", component: Bug, roles: ["admin"] },
   { path: "/error/404", component: Error404 },
 ];

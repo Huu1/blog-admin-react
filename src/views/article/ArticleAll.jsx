@@ -97,7 +97,7 @@ const Craft = (props) => {
   const { appData: { tagList = [] } } = useSelector(state => state.app);
 
   const [searchParam, setSearchParam] = useState({
-    status: 0,
+    status: 1,
     tid: '0',
   });
 

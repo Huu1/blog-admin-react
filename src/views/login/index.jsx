@@ -21,8 +21,7 @@ const Login = (props) => {
       })
       .catch((error) => {
         setLoading(false);
-        // message.error(error.e);
-        console.warn('登录失败');
+        message.warn('密码或账号错误');
       });
   };
 

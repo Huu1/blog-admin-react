@@ -33,12 +33,6 @@ const menuList = [
     ],
   },
   {
-    title: "用户管理",
-    path: "/user",
-    icon: "usergroup-add",
-    roles: ["admin"]
-  },
-  {
     title: "分类管理",
     path: "/label",
     icon: "usergroup-add",
@@ -49,18 +43,6 @@ const menuList = [
     path: "/tag",
     icon: "usergroup-add",
     roles: ["admin"]
-  },
-  {
-    title: "关于作者",
-    path: "/about",
-    icon: "user",
-    roles: ["admin", "user", "guest"]
-  },
-  {
-    title: "Bug收集",
-    path: "/bug",
-    icon: "bug",
-    roles: ["admin"]
-  },
+  }
 ];
 export default menuList;
