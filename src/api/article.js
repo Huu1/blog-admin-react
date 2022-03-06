@@ -19,3 +19,12 @@ export const delConfirm = async (articleId, cb = () => { }) => {
     message.info(msg);
   }
 }
+export const delPublishConfirm = async (articleId, cb = () => { }) => {
+  const { code, msg } = await request.post('article/delPublish', { articleId });
+  if (code === 0) {
+    message.success(msg);
+    cb();
+  } else {
+    message.info(msg);
+  }
+}

@@ -48,6 +48,7 @@ const Edit = (props) => {
   const [initValue, setInitValue] = useState();
 
   const titleChangeTimer = useRef();
+  const firstRef = useRef();
 
   const [editor, setEditot] = useState()
   const [fileList, setFileList] = useState([])
@@ -66,6 +67,7 @@ const Edit = (props) => {
             articleId: data.articleId,
           }
         })
+        firstRef.current = false;
         setInitValue(data.content.content);
       } else {
         message.error(msg);
@@ -80,9 +82,8 @@ const Edit = (props) => {
     }
   }, [history, id])
 
-  const save = (title, content) => {
+  const save = useCallback((title, content, articleId) => {
     setInfo('保存中...');
-    const { articleId } = article
     request.post(`article/edit`, {
       title,
       content,
@@ -97,7 +98,7 @@ const Edit = (props) => {
         setInfo('保存失败！');
       }
     })
-  }
+  }, [])
 
   const upLoadprops = {
     name: 'file',
@@ -120,16 +121,12 @@ const Edit = (props) => {
 
 
   const titleChange = (e) => {
+    const { target: { value } } = e;
     dispatch({
       type: "changeTitle",
-      payload: e.target.value
+      payload: value
     })
-    if (titleChangeTimer.current) {
-      clearTimeout(titleChangeTimer.current)
-    }
-    titleChangeTimer.current = setTimeout(() => {
-      save(article.title, article.content)
-    }, 500);
+
   }
 
   const valueChange = (value) => {
@@ -137,13 +134,21 @@ const Edit = (props) => {
       type: "changeContent",
       payload: value
     })
-    if (titleChangeTimer.current) {
-      clearTimeout(titleChangeTimer.current)
-    }
-    titleChangeTimer.current = setTimeout(() => {
-      save(article.title, value)
-    }, 500);
   }
+
+  useEffect(() => {
+    if (firstRef.current) {
+      titleChangeTimer.current = setTimeout(() => {
+        save(article.title, article.content, article.articleId)
+      }, 300);
+    } else {
+      firstRef.current = true;
+    }
+
+    return () => {
+      titleChangeTimer.current && clearTimeout(titleChangeTimer.current)
+    }
+  }, [article])
 
   const editLoad = (editor) => {
     setEditot(editor)

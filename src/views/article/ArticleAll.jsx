@@ -7,7 +7,7 @@ import Publish from '@/components/Publish'
 import { useSelector } from "react-redux";
 import { useRequest } from "../../utils/useHttp";
 import Img from "../../components/ImgPreview";
-import { delConfirm } from "../../api/article";
+import { delConfirm, delPublishConfirm } from "../../api/article";
 const { Option } = Select;
 const baseUrl = process.env.REACT_APP_BASE_API;
 
@@ -49,8 +49,8 @@ const columnsInit = [
     key: 'status',
     render: (record) => {
       const map = {
-        0: { color: 'magenta', title: "草稿箱" },
-        1: { color: 'red', title: "已发布" },
+        1: { color: 'magenta', title: "草稿箱" },
+        2: { color: 'red', title: "已发布" },
       }
       const target = map[record];
       return (
@@ -97,7 +97,7 @@ const Craft = (props) => {
   const { appData: { tagList = [] } } = useSelector(state => state.app);
 
   const [searchParam, setSearchParam] = useState({
-    status: 1,
+    status: 2,
     tid: '0',
   });
 
@@ -121,6 +121,11 @@ const Craft = (props) => {
   useEffect(() => {
     const delConfirmHandle = (articleId) => {
       delConfirm(articleId, () => {
+        searchClickHandle();
+      })
+    }
+    const delPublishConfirmHandle = (articleId) => {
+      delPublishConfirm(articleId, () => {
         searchClickHandle();
       })
     }
@@ -149,7 +154,7 @@ const Craft = (props) => {
       columnsInit.find(i => i.key === 'action').render = (record, article) => {
         const { status, articleId } = article;
         // eslint-disable-next-line no-lone-blocks
-        {/* // 1:草稿  2:待审核  3:已发布  4:驳回 */ }
+        {/* // 1:草稿  2:已发布  */ }
         const deleteAction = () => {
           return (
             <Popconfirm
@@ -162,12 +167,26 @@ const Craft = (props) => {
             </Popconfirm>
           )
         }
+        const deletePublishAction = () => {
+          return (
+            <Popconfirm
+              title="确定删除已发布的文章"
+              onConfirm={() => { delPublishConfirmHandle(articleId) }}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="link" >删除</Button>
+            </Popconfirm>
+          )
+        }
         const editAtion = () => {
           return <Button type='link' onClick={() => { editDraft(articleId) }}>编辑</Button>
         }
-        if (status === 1) {
+        if (status === 2) {
           return <span>
             <Button type='link' onClick={() => { preivewArticle(articleId) }}>查看</Button>
+            <Divider type="vertical" />
+            {deletePublishAction()}
           </span>
         } else {
           return <span>
@@ -195,6 +214,8 @@ const Craft = (props) => {
       message.info(msg)
     }
   }
+
+
 
   const onSetCrurrentArticle = (article) => {
     setCrurrentArticle(article);
@@ -236,8 +257,8 @@ const Craft = (props) => {
         <div className='flex column-center'>
           <span>文章状态：</span>
           <Select value={searchParam.status} style={{ width: 150, marginRight: "2em" }} onChange={statusChange} >
-            <Option value={1}>已发布</Option>
-            <Option value={0}>草稿箱</Option>
+            <Option value={2}>已发布</Option>
+            <Option value={1}>草稿箱</Option>
           </Select>
           <span>文章类别：</span>
           <Select value={searchParam.tid} style={{ width: 150 }} onChange={tagChange}>

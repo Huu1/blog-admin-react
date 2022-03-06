@@ -14,5 +14,7 @@ export default [
   { path: "/article/all", component: ArticleAll, roles: ["admin","user"] },
   { path: "/article/new/:id", component: Edit, roles: ["admin","user"] },
   { path: "/article/view/:id", component: ViewArticle, roles: ["admin","user"] },
+  // { path: "/label", component: ViewArticle, roles: ["admin"] },
+  // { path: "/tag", component: ViewArticle, roles: ["admin"] },
   { path: "/error/404", component: Error404 },
 ];
